@@ -4,7 +4,7 @@ import streamlit as st
 
 from dashboard.html_utils import shorten
 from dashboard.news import fetch_feed_news
-from dashboard.stocks import fetch_stock_history, stock_signal
+from dashboard.stocks import fetch_stock_history, signal_description, stock_signal
 
 
 def render_stock_panel(symbol: str) -> None:
@@ -24,6 +24,7 @@ def render_stock_panel(symbol: str) -> None:
     change_pct = (change / previous_close) * 100 if previous_close else 0
     currency = stock["currency"]
     signal, signal_reason = stock_signal(prices)
+    tooltip = signal_description(signal)
 
     metric_col, signal_col = st.columns([0.35, 0.65], vertical_alignment="top")
     with metric_col:
@@ -36,7 +37,10 @@ def render_stock_panel(symbol: str) -> None:
             st.caption(f"{stock['exchange']} - {stock['market_state']}")
 
     with signal_col:
-        st.markdown(f"**Signal: {signal}**")
+        st.markdown(
+            f'**Signal:** <span class="signal-tooltip" title="{tooltip}">{signal}</span>',
+            unsafe_allow_html=True,
+        )
         st.write(signal_reason)
         st.caption("Educational signal only, not personalized financial advice.")
 

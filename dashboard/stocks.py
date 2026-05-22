@@ -5,6 +5,13 @@ import requests
 import streamlit as st
 
 
+SIGNAL_DESCRIPTIONS = {
+    "Bullish watch": "A bullish watch means recent price action is showing upward momentum. In this dashboard, that happens when the price is above both the 20-day and 50-day moving averages.",
+    "Bearish watch": "A bearish watch means recent price action is showing weakness. In this dashboard, that happens when the price is below both the 20-day and 50-day moving averages.",
+    "Neutral watch": "A neutral watch means the trend is mixed or unclear. In this dashboard, that happens when price and moving averages do not line up in a clear bullish or bearish pattern.",
+}
+
+
 @st.cache_data(ttl=120, show_spinner=False)
 def fetch_stock_history(symbol: str) -> tuple[dict[str, str | float], pd.DataFrame]:
     """Load recent Yahoo Finance chart data for the watched stock."""
@@ -71,3 +78,9 @@ def stock_signal(prices: pd.DataFrame) -> tuple[str, str]:
         "Neutral watch",
         "The moving averages are mixed. That usually points to an unclear trend, so waiting for a cleaner setup may be more prudent.",
     )
+
+
+def signal_description(signal: str) -> str:
+    """Return a hover tooltip description for a stock signal label."""
+
+    return SIGNAL_DESCRIPTIONS.get(signal, "A simple technical trend label based on moving averages.")

@@ -22,5 +22,10 @@ DASHBOARD_CSS = """
     justify-content: center;
     width: 100%;
 }
+
+.signal-tooltip {
+    border-bottom: 1px dotted #6b7280;
+    cursor: help;
+}
 </style>
 """
