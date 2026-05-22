@@ -32,6 +32,9 @@ def fetch_stock_history(symbol: str) -> tuple[dict[str, str | float], pd.DataFra
     prices = pd.DataFrame(
         {
             "Date": pd.to_datetime(result["timestamp"], unit="s"),
+            "Open": quote["open"],
+            "High": quote["high"],
+            "Low": quote["low"],
             "Close": quote["close"],
         }
     ).dropna()

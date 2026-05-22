@@ -1,10 +1,55 @@
 """Reusable Streamlit UI panels for the dashboard."""
 
+import plotly.graph_objects as go
 import streamlit as st
 
 from dashboard.html_utils import shorten
 from dashboard.news import fetch_feed_news
 from dashboard.stocks import fetch_stock_history, signal_description, stock_signal
+
+
+def render_candlestick_chart(prices) -> None:
+    """Render OHLC candles with moving-average overlays."""
+
+    fig = go.Figure()
+    fig.add_trace(
+        go.Candlestick(
+            x=prices["Date"],
+            open=prices["Open"],
+            high=prices["High"],
+            low=prices["Low"],
+            close=prices["Close"],
+            name="Price",
+            increasing_line_color="#16a34a",
+            decreasing_line_color="#dc2626",
+        )
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=prices["Date"],
+            y=prices["MA20"],
+            mode="lines",
+            name="MA20",
+            line={"color": "#2563eb", "width": 1.5},
+        )
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=prices["Date"],
+            y=prices["MA50"],
+            mode="lines",
+            name="MA50",
+            line={"color": "#9333ea", "width": 1.5},
+        )
+    )
+    fig.update_layout(
+        height=320,
+        margin={"l": 10, "r": 10, "t": 10, "b": 10},
+        hovermode="x unified",
+        legend={"orientation": "h", "yanchor": "bottom", "y": 1.02, "xanchor": "right", "x": 1},
+        xaxis_rangeslider_visible=False,
+    )
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
 
 def render_stock_panel(symbol: str) -> None:
@@ -44,8 +89,7 @@ def render_stock_panel(symbol: str) -> None:
         st.write(signal_reason)
         st.caption("Educational signal only, not personalized financial advice.")
 
-    chart_data = prices.set_index("Date")[["Close", "MA20", "MA50"]]
-    st.line_chart(chart_data, height=260)
+    render_candlestick_chart(prices)
 
 
 def render_feed_panel(title: str, feed_url: str, limit: int) -> None:
