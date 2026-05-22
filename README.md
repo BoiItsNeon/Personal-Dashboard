@@ -37,6 +37,22 @@ streamlit run app.py
 
 The dashboard will open in your browser. Use the sidebar to change how many news items are shown.
 
+## Project Structure
+
+```text
+app.py                  # Streamlit entry point
+dashboard/config.py     # Default feed URLs and ticker settings
+dashboard/news.py       # RSS loading and normalization
+dashboard/stocks.py     # Yahoo Finance chart data and signal logic
+dashboard/components.py # Reusable Streamlit panels
+dashboard/ui.py         # Page layout and sidebar controls
+dashboard/styles.py     # Dashboard CSS
+```
+
+## React Note
+
+The app is still Python-first with Streamlit, which already renders its interface through a React frontend internally. A separate custom React UI can be added later by keeping `dashboard/news.py` and `dashboard/stocks.py` as the data layer and exposing them through a Python API.
+
 ## Start Automatically on Windows Sign-In
 
 Run this once:
