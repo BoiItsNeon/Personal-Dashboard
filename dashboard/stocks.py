@@ -13,13 +13,17 @@ SIGNAL_DESCRIPTIONS = {
 
 
 @st.cache_data(ttl=120, show_spinner=False)
-def fetch_stock_history(symbol: str) -> tuple[dict[str, str | float], pd.DataFrame]:
+def fetch_stock_history(
+    symbol: str,
+    range_value: str = "1d",
+    interval: str = "1m",
+) -> tuple[dict[str, str | float], pd.DataFrame]:
     """Load recent Yahoo Finance chart data for the watched stock."""
 
     url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
     response = requests.get(
         url,
-        params={"range": "6mo", "interval": "1d"},
+        params={"range": range_value, "interval": interval},
         headers={"User-Agent": "Mozilla/5.0"},
         timeout=15,
     )
@@ -52,6 +56,8 @@ def fetch_stock_history(symbol: str) -> tuple[dict[str, str | float], pd.DataFra
             "previous_close": float(meta.get("previousClose") or prices["Close"].iloc[-2]),
             "exchange": meta.get("exchangeName", ""),
             "market_state": meta.get("marketState", ""),
+            "data_granularity": meta.get("dataGranularity", interval),
+            "provider_note": "Yahoo Finance data may be delayed depending on exchange and symbol.",
         },
         prices,
     )
@@ -68,13 +74,13 @@ def stock_signal(prices: pd.DataFrame) -> tuple[str, str]:
     if close > ma20 > ma50:
         return (
             "Bullish watch",
-            "Price is above both the 20-day and 50-day moving averages. That suggests positive momentum, but it is not a standalone reason to buy.",
+            "Price is above both short and medium moving-average lines. That suggests positive momentum, but it is not a standalone reason to buy.",
         )
 
     if close < ma20 < ma50:
         return (
             "Bearish watch",
-            "Price is below both the 20-day and 50-day moving averages. That suggests weak momentum, so caution may be warranted.",
+            "Price is below both short and medium moving-average lines. That suggests weak momentum, so caution may be warranted.",
         )
 
     return (

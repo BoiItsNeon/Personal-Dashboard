@@ -68,3 +68,4 @@ This creates a shortcut in your Windows Startup folder. On your next sign-in, it
 - The default Inquirer feed is `https://newsinfo.inquirer.net/feed`. If you prefer another Inquirer section, change `INQUIRER_FEED_URL` in `.env` or the sidebar.
 - The default US stock-market feed follows Yahoo Finance headlines for the S&P 500, Dow Jones Industrial Average, and Nasdaq Composite. Change `STOCK_MARKET_FEED_URL` in `.env` or the sidebar if you prefer another feed.
 - The stock panel defaults to `DDD`. Change `WATCH_SYMBOL` in `.env` or the sidebar if you want to monitor a different ticker.
+- The stock panel defaults to intraday `1m` candles and auto-refreshes every 60 seconds. Yahoo Finance data may still be delayed depending on the exchange and symbol.

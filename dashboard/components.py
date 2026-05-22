@@ -2,10 +2,28 @@
 
 import plotly.graph_objects as go
 import streamlit as st
+import streamlit.components.v1 as components
 
 from dashboard.html_utils import shorten
 from dashboard.news import fetch_feed_news
 from dashboard.stocks import fetch_stock_history, signal_description, stock_signal
+
+
+def render_auto_refresh(enabled: bool, seconds: int) -> None:
+    """Reload the Streamlit page on a timer for near-real-time updates."""
+
+    if not enabled:
+        return
+
+    milliseconds = max(seconds, 10) * 1000
+    components.html(
+        f"""
+        <script>
+        setTimeout(() => window.parent.location.reload(), {milliseconds});
+        </script>
+        """,
+        height=0,
+    )
 
 
 def render_candlestick_chart(prices) -> None:
@@ -52,13 +70,13 @@ def render_candlestick_chart(prices) -> None:
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
 
-def render_stock_panel(symbol: str) -> None:
-    """Render the stock price, trend signal, and six-month chart."""
+def render_stock_panel(symbol: str, range_value: str, interval: str) -> None:
+    """Render the stock price, trend signal, and intraday candlestick chart."""
 
     st.subheader(f"{symbol.upper()} Stock Watch")
 
     try:
-        stock, prices = fetch_stock_history(symbol.upper())
+        stock, prices = fetch_stock_history(symbol.upper(), range_value, interval)
     except Exception as exc:
         st.error(f"Could not load stock data: {exc}")
         return
@@ -80,6 +98,7 @@ def render_stock_panel(symbol: str) -> None:
         )
         if stock["market_state"]:
             st.caption(f"{stock['exchange']} - {stock['market_state']}")
+        st.caption(f"Chart interval: {stock['data_granularity']}")
 
     with signal_col:
         st.markdown(
@@ -87,7 +106,10 @@ def render_stock_panel(symbol: str) -> None:
             unsafe_allow_html=True,
         )
         st.write(signal_reason)
-        st.caption("Educational signal only, not personalized financial advice.")
+        st.caption(
+            "Educational signal only, not personalized financial advice. "
+            f"{stock['provider_note']}"
+        )
 
     render_candlestick_chart(prices)
 
